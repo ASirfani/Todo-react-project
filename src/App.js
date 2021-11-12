@@ -1,23 +1,62 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState ,useEffect } from "react";
+import Form from "./component/form";
+import TodoList from "./component/todoList";
+
 
 function App() {
+  
+  // usestate
+  const [inputText, setInputText] = useState("");
+  const [todos,setTodo] = useState([]);
+  const [status , setStatus] = useState("all");
+  const [filteredStatus, setFilteredStatus] = useState([]);
+
+  
+  //function
+  const filterHandler = () =>{
+    switch(status){
+      case "completed":
+        setFilteredStatus(todos.filter((todo)=>todo.completed === true));
+        break;
+      case "uncompleted": 
+        setFilteredStatus(todos.filter(todo=>todo.completed === false));
+        break;
+      default:
+        setFilteredStatus(todos);
+    }
+  }
+
+  useEffect(()=>{
+    getLocalTodos();
+  },[]);
+
+  useEffect(()=>{
+    saveLocalTodos();
+    filterHandler();
+  },[todos,status]);
+
+  const saveLocalTodos = ()=>{
+    localStorage.setItem("todos",JSON.stringify(todos));
+  }
+  
+  const getLocalTodos = ()=>{
+    if(localStorage.getItem("todos")===null){
+      localStorage.setItem("todos",JSON.stringify(todos));
+    }else{
+      
+      let todoLocal = JSON.parse(localStorage.getItem("todos"));
+      setTodo(todoLocal);
+    }
+  }
+  
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+      <header>
+        <h1>abbas's Todo List</h1>
       </header>
+      <Form inputText = {inputText} setStatus = {setStatus} setInputText = {setInputText} todo={todos} setTodo={setTodo}/>
+      <TodoList todos={todos}  setTodo ={setTodo} filteredStatus={filteredStatus}/>
     </div>
   );
 }
